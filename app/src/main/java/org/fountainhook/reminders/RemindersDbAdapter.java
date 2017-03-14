@@ -1,16 +1,16 @@
 package org.fountainhook.reminders;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-/**
- * Created by nicholson on 3/13/2017.
- */
+import java.sql.SQLException;
 
-public class RemindersDbAdapter {
-
+public class RemindersDbAdapter
+{
     public static final String COL_ID = "_id";
     public static final String COL_CONTENT = "content";
     public static final String COL_IMPORTANT = "important";
@@ -28,9 +28,9 @@ public class RemindersDbAdapter {
     private static final String TABLE_NAME = "tbl_remdrs";
     private static final int DATABASE_VERSION = 1;
 
-    private  final Context mCtx;
+    private final Context mCtx;
 
-    private static final String DATA_CREATE =
+    private static final String DATABASE_CREATE =
             "CREATE TABLE if not exists " + TABLE_NAME + " ( " +
                     COL_ID + " INTEGER PRIMARY KEY autoincrement, " +
                     COL_CONTENT + " TEXT, " +
@@ -41,24 +41,101 @@ public class RemindersDbAdapter {
         this.mCtx = ctx;
     }
 
-    private static class DatabaseHelper extends SQLiteOpenHelper {
+    public void open() throws SQLException
+    {
+        mDbHelper = new DatabaseHelper(mCtx);
+        mDb = mDbHelper.getWritableDatabase();
+    }
 
-        DatabaseHelper(Context context) {
+    public void close()
+    {
+        if (mDbHelper != null)
+        {
+            mDbHelper.close();
+        }
+    }
+
+    // create
+    public void createReminder(String name, boolean important) {
+        ContentValues values = new ContentValues();
+        values.put(COL_CONTENT, name);
+        values.put(COL_IMPORTANT, important ? 1 : 0);
+        mDb.insert(TABLE_NAME, null, values);
+    }
+
+    public long createReminder(Reminder reminder) {
+        ContentValues values = new ContentValues();
+        values.put(COL_CONTENT, reminder.getContent());
+        values.put(COL_IMPORTANT, reminder.getImportant());
+        // Inserting Row
+        return mDb.insert(TABLE_NAME, null, values);
+    }
+
+    // read
+    public Reminder fetchReminderById(int id) {
+
+        Cursor cursor = mDb.query(TABLE_NAME, new String[]{COL_ID,
+                        COL_CONTENT, COL_IMPORTANT}, COL_ID + "=?",
+                new String[]{String.valueOf(id)}, null, null, null, null
+        );
+        if (cursor != null)
+            cursor.moveToFirst();
+        return new Reminder(
+                cursor.getInt(INDEX_ID),
+                cursor.getString(INDEX_CONTENT),
+                cursor.getInt(INDEX_IMPORTANT)
+        );
+    }
+    public Cursor fetchAllReminders() {
+        Cursor mCursor = mDb.query(TABLE_NAME, new String[]{COL_ID,
+                        COL_CONTENT, COL_IMPORTANT},
+                null, null, null, null, null
+        );
+        if (mCursor != null) {
+            mCursor.moveToFirst();
+        }
+        return mCursor;
+    }
+
+    // update
+    public void updateReminder(Reminder reminder) {
+        ContentValues values = new ContentValues();
+        values.put(COL_CONTENT, reminder.getContent());
+        values.put(COL_IMPORTANT, reminder.getImportant());
+        mDb.update(TABLE_NAME, values,
+                COL_ID + "=?", new String[]{String.valueOf(reminder.getId())});
+    }
+
+    // delete
+    public void deleteReminderById(int nId) {
+        mDb.delete(TABLE_NAME, COL_ID + "=?", new String[]{String.valueOf(nId)});
+    }
+    public void deleteAllReminders() {
+        mDb.delete(TABLE_NAME, null, null);
+    }
+
+    private static class DatabaseHelper extends SQLiteOpenHelper
+    {
+        DatabaseHelper(Context context)
+        {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db) {
-            Log.w(TAG, DATA_CREATE);
-            db.execSQL(DATA_CREATE);
+        public void onCreate(SQLiteDatabase db)
+        {
+            Log.w(TAG, DATABASE_CREATE);
+            db.execSQL(DATABASE_CREATE);
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
-            + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+        {
+            Log.w(TAG, "Upgrading database from versoin " + oldVersion + " to "
+                    + newVersion + " , which will destroy all old data");
+            db.execSQL("DROP TABLE IF EXIST " + TABLE_NAME);
             onCreate(db);
         }
     }
+
 }
