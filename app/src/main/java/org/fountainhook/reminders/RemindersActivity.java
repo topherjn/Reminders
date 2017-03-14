@@ -5,15 +5,20 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.sql.SQLException;
+
+import static org.fountainhook.reminders.R.id.parent;
 
 public class RemindersActivity extends AppCompatActivity {
 
@@ -38,6 +43,14 @@ public class RemindersActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+        if(savedInstanceState == null) {
+            mDbAdapter.deleteAllReminders();
+            mDbAdapter.createReminder("Buy Learn Android Studio", false);
+            mDbAdapter.createReminder("Abduct child in my silver Nissan Rogue", true);
+
+
+        }
+
         Cursor cursor = mDbAdapter.fetchAllReminders();
 
         String[] from = new String[]{RemindersDbAdapter.COL_CONTENT};
@@ -53,6 +66,14 @@ public class RemindersActivity extends AppCompatActivity {
                 0);
 
         mListView.setAdapter(mCursorAdapter);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(RemindersActivity.this, "clicked" + position, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
