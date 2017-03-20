@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:id="@+id/custom_root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
 
     <TextView
-        android:id="@+id/custom_item"
+        android:id="@+id/custom_title"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:gravity="center_vertical"
         android:padding="10dp"
         android:text="New Reminder"
         android:textColor="@color/white"
-        android:textSize="24sp"/>
+        android:textSize="24sp" />
 
     <EditText
         android:id="@+id/custom_edit_reminder"
@@ -23,6 +25,7 @@
         android:background="@color/light_grey"
         android:gravity="start"
         android:textColor="@color/black">
+
         <requestFocus />
     </EditText>
 
@@ -43,8 +46,8 @@
         <Button
             android:id="@+id/custom_button_cancel"
             android:layout_width="0dp"
-            android:layout_weight="50"
             android:layout_height="60dp"
+            android:layout_weight="50"
             android:text="Cancel"
             android:textColor="@color/white"
             tools:text="Cancel" />
@@ -52,10 +55,10 @@
         <Button
             android:id="@+id/custom_button_commit"
             android:layout_width="0dp"
-            android:layout_weight="50"
             android:layout_height="60dp"
+            android:layout_weight="50"
             android:text="Commit"
-            android:textColor="@color/white"/>
+            android:textColor="@color/white" />
 
     </LinearLayout>
 </LinearLayout>
